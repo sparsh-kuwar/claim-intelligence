@@ -1,5 +1,7 @@
 # AI Service Claim Intelligence & Validation Platform
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sparsh-kuwar/claim-intelligence)
+
 Turns free-text service and warranty claims into **structured, reviewable, validated records**.
 The AI **predicts**, the business rules **validate**, humans **decide** on anything uncertain,
 and only validated data is exported.
