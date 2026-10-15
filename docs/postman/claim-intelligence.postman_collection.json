@@ -1,0 +1,960 @@
+{
+  "info": {
+    "name": "AI Service Claim Intelligence API",
+    "description": "Run top-to-bottom with the Collection Runner. Requires the backend on {{baseUrl}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Meta",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"postgres\", () => pm.expect(pm.response.json().database).to.eql(\"postgresql\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Public config (threshold, categories)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "config"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"threshold present\", () => pm.expect(pm.response.json().confidenceThreshold).to.be.a(\"number\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Intake",
+      "item": [
+        {
+          "name": "Create claim (JSON) - PDF example",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims"
+              ]
+            },
+            "description": "Creates a claim; returns Claim ID, submission timestamp, status PROCESSING.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"ABC Manufacturing\",\n  \"equipmentModel\": \"AX-500\",\n  \"serialNumber\": \"SN10231\",\n  \"description\": \"Router AX500 has intermittent connectivity. Customer replaced the power module twice. Device is still under warranty. Technician suspects a hardware failure.\",\n  \"serviceDate\": \"2026-09-20\",\n  \"warrantyStatus\": \"UNDER_WARRANTY\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 201\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"has claimId\", () => pm.expect(b.claimId).to.match(/^CLM-\\d+$/));",
+                  "pm.test(\"status PROCESSING\", () => pm.expect(b.status).to.eql(\"PROCESSING\"));",
+                  "pm.test(\"has timestamp\", () => pm.expect(b.submittedAt).to.be.a(\"string\"));",
+                  "pm.collectionVariables.set(\"claimId\", b.claimId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create claim (multipart + optional attachment)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "customer",
+                  "value": "ABC Manufacturing",
+                  "type": "text"
+                },
+                {
+                  "key": "equipmentModel",
+                  "value": "AX-500",
+                  "type": "text"
+                },
+                {
+                  "key": "serialNumber",
+                  "value": "SN10231",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Router AX500 has intermittent connectivity. Customer replaced the power module twice. Device is still under warranty. Technician suspects a hardware failure.",
+                  "type": "text"
+                },
+                {
+                  "key": "serviceDate",
+                  "value": "2026-09-20",
+                  "type": "text"
+                },
+                {
+                  "key": "warrantyStatus",
+                  "value": "UNDER_WARRANTY",
+                  "type": "text"
+                },
+                {
+                  "key": "attachment",
+                  "type": "file",
+                  "src": [],
+                  "disabled": true,
+                  "description": "enable and pick a PDF/PNG/JPG/TXT <= 5MB"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/claims",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims"
+              ]
+            },
+            "description": "Same as JSON create, as multipart/form-data. Enable the attachment row to upload a file."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create claim - validation errors (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"\",\n  \"equipmentModel\": \"AX-500\",\n  \"description\": \"short\",\n  \"serviceDate\": \"2099-01-01\",\n  \"warrantyStatus\": \"MAYBE\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"error envelope\", () => pm.expect(pm.response.json().error.code).to.eql(\"VALIDATION_ERROR\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Read",
+      "item": [
+        {
+          "name": "List claims",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"has counts\", () => pm.expect(pm.response.json().counts).to.have.property(\"NEEDS_REVIEW\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List claims needing review",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims?status=NEEDS_REVIEW",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "NEEDS_REVIEW"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get claim",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get unknown claim (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/CLM-99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "CLM-99999"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. AI + Validation",
+      "item": [
+        {
+          "name": "Analyze claim",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/analyze",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}",
+                "analyze"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"routed to human review\", () => pm.expect(b.validationStatus).to.eql(\"NEEDS_REVIEW\"));",
+                  "pm.test(\"R2 low confidence failed\", () => pm.expect(b.validation.failedRules).to.include(\"R2\"));",
+                  "pm.test(\"per-field confidence\", () => pm.expect(b.aiAnalysis.category.confidence).to.be.a(\"number\"));",
+                  "pm.test(\"final columns empty before approval\", () => pm.expect(b.category).to.eql(null));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get analysis",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/analysis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}",
+                "analysis"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Human Review",
+      "item": [
+        {
+          "name": "Export before approval (409)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}",
+                "export"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Approve without review (422 blocked)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}",
+                "approve"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewer\": \"analyst\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"blocked\", () => pm.expect(pm.response.json().error.code).to.eql(\"APPROVAL_BLOCKED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Review: accept / edit fields + comment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}",
+                "review"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewer\": \"analyst\",\n  \"fieldReviews\": {\n    \"suspectedCause\": {\n      \"action\": \"ACCEPT\"\n    },\n    \"affectedPart\": {\n      \"action\": \"ACCEPT\"\n    },\n    \"resolution\": {\n      \"action\": \"EDIT\",\n      \"value\": \"Inspect/replace power module\"\n    }\n  },\n  \"comment\": \"Technician evidence required.\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Approve claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}",
+                "approve"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewer\": \"analyst\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"approved\", () => pm.expect(pm.response.json().validationStatus).to.eql(\"APPROVED\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Structured Output",
+      "item": [
+        {
+          "name": "Export validated record",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}",
+                "export"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"human value, not AI value\", () => pm.expect(b.resolution).to.eql(\"Inspect/replace power module\"));",
+                  "pm.test(\"provenance recorded\", () => pm.expect(b.provenance.resolution.source).to.eql(\"HUMAN_EDITED\"));",
+                  "pm.test(\"status APPROVED\", () => pm.expect(b.status).to.eql(\"APPROVED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Export as file download",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/export?download=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{claimId}}",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "download",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Auto-eligible path",
+      "item": [
+        {
+          "name": "Create clean claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Delta Foods\",\n  \"equipmentModel\": \"CH-900\",\n  \"serialNumber\": \"SN77310\",\n  \"description\": \"Chiller CH-900 serial SN77310 is not cooling since Monday. Technician confirmed compressor failure after inspection. Unit is under warranty.\",\n  \"serviceDate\": \"2026-09-18\",\n  \"warrantyStatus\": \"UNDER_WARRANTY\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"cleanId\", pm.response.json().claimId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Analyze clean claim -> READY_FOR_APPROVAL",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{cleanId}}/analyze",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{cleanId}}",
+                "analyze"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"ready\", () => pm.expect(pm.response.json().validationStatus).to.eql(\"READY_FOR_APPROVAL\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Approve clean claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{cleanId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{cleanId}}",
+                "approve"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewer\": \"analyst\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Escalation",
+      "item": [
+        {
+          "name": "Create safety claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Metro Print Co\",\n  \"equipmentModel\": \"LX-220\",\n  \"serialNumber\": \"SN55501\",\n  \"description\": \"Printer LX-220 serial SN55501 started smoking and there is a burning smell from the rear power supply area.\",\n  \"serviceDate\": \"2026-09-21\",\n  \"warrantyStatus\": \"UNDER_WARRANTY\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"safetyId\", pm.response.json().claimId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Analyze -> CRITICAL -> R4",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{safetyId}}/analyze",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{safetyId}}",
+                "analyze"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"R4 failed\", () => pm.expect(pm.response.json().validation.failedRules).to.include(\"R4\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Escalate without reason (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{safetyId}}/escalate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{safetyId}}",
+                "escalate"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewer\": \"analyst\",\n  \"reason\": \"\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 422\", () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Escalate claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{safetyId}}/escalate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "claims",
+                "{{safetyId}}",
+                "escalate"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewer\": \"analyst\",\n  \"reason\": \"Safety incident - route to product safety team\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"escalated\", () => pm.expect(pm.response.json().validationStatus).to.eql(\"ESCALATED\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "claimId",
+      "value": ""
+    },
+    {
+      "key": "cleanId",
+      "value": ""
+    },
+    {
+      "key": "safetyId",
+      "value": ""
+    }
+  ]
+}

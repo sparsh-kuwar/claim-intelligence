@@ -1,0 +1,67 @@
+{
+    "claimId": "CLM-10001",
+    "customer": "ABC Manufacturing",
+    "equipmentModel": "AX-500",
+    "serialNumber": "SN10231",
+    "serviceDate": "2026-09-20",
+    "warrantyStatus": "UNDER_WARRANTY",
+    "category": "Hardware Failure",
+    "symptom": "Intermittent connectivity",
+    "suspectedCause": "Power Module failure",
+    "affectedPart": "Power Module",
+    "severity": "HIGH",
+    "resolution": "Inspect/replace power module",
+    "confidence": 55,
+    "status": "APPROVED",
+    "approvalPath": "HUMAN_REVIEW",
+    "humanVerifiedFields": [
+        "suspectedCause",
+        "affectedPart",
+        "resolution"
+    ],
+    "failedRulesAtIntake": [
+        "R2"
+    ],
+    "provenance": {
+        "equipmentModel": {
+            "source": "INTAKE",
+            "aiConfidence": 98
+        },
+        "serialNumber": {
+            "source": "INTAKE",
+            "aiConfidence": 97
+        },
+        "category": {
+            "source": "AI_VALIDATED",
+            "aiConfidence": 91
+        },
+        "symptom": {
+            "source": "AI_VALIDATED",
+            "aiConfidence": 90
+        },
+        "suspectedCause": {
+            "source": "HUMAN_ACCEPTED",
+            "aiConfidence": 60
+        },
+        "affectedPart": {
+            "source": "HUMAN_ACCEPTED",
+            "aiConfidence": 72
+        },
+        "severity": {
+            "source": "AI_VALIDATED",
+            "aiConfidence": 86
+        },
+        "resolution": {
+            "source": "HUMAN_EDITED",
+            "aiConfidence": 55
+        },
+        "warrantyRelevance": {
+            "source": "WARRANTY_REGISTRY",
+            "aiConfidence": 90
+        }
+    },
+    "reviewer": "analyst",
+    "reviewerComment": "Technician evidence required.",
+    "aiProvider": "rule_based",
+    "approvedAt": "2026-09-24T18:44:08.717120+00:00"
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "_scenario": "PDF example - low confidence root cause -> NEEDS_REVIEW (R2)",
+    "customer": "ABC Manufacturing",
+    "equipmentModel": "AX-500",
+    "serialNumber": "SN10231",
+    "description": "Router AX500 has intermittent connectivity. Customer replaced the power module twice. Device is still under warranty. Technician suspects a hardware failure.",
+    "serviceDate": "2026-09-20",
+    "warrantyStatus": "UNDER_WARRANTY"
+  },
+  {
+    "_scenario": "Clean, confirmed diagnosis -> READY_FOR_APPROVAL",
+    "customer": "Delta Foods",
+    "equipmentModel": "CH-900",
+    "serialNumber": "SN77310",
+    "description": "Chiller CH-900 serial SN77310 is not cooling since Monday. Technician confirmed compressor failure after inspection. Unit is under warranty.",
+    "serviceDate": "2026-09-18",
+    "warrantyStatus": "UNDER_WARRANTY"
+  },
+  {
+    "_scenario": "Clean, confirmed diagnosis -> READY_FOR_APPROVAL",
+    "customer": "Nimbus Networks",
+    "equipmentModel": "AX-700",
+    "serialNumber": "SN20417",
+    "description": "Access point AX-700 has no connectivity on any client. Field engineer confirmed antenna failure; connector is intact. Device is covered by warranty.",
+    "serviceDate": "2026-09-10",
+    "warrantyStatus": "UNDER_WARRANTY"
+  },
+  {
+    "_scenario": "Safety hazard -> CRITICAL severity -> NEEDS_REVIEW (R4)",
+    "customer": "Metro Print Co",
+    "equipmentModel": "LX-220",
+    "serialNumber": "SN55501",
+    "description": "Printer LX-220 serial SN55501 started smoking and there is a burning smell from the rear power supply area.",
+    "serviceDate": "2026-09-21",
+    "warrantyStatus": "UNDER_WARRANTY"
+  },
+  {
+    "_scenario": "Claims under warranty but registry says expired -> NEEDS_REVIEW (R3)",
+    "customer": "Orbit Logistics",
+    "equipmentModel": "AX-500",
+    "serialNumber": "SN10232",
+    "description": "Router AX-500 does not power on. Technician confirmed power module failure. Customer says unit is under warranty.",
+    "serviceDate": "2026-09-12",
+    "warrantyStatus": "UNDER_WARRANTY"
+  },
+  {
+    "_scenario": "No serial anywhere -> NEEDS_REVIEW (R1)",
+    "customer": "Sunrise Hotels",
+    "equipmentModel": "PX-150",
+    "serialNumber": "",
+    "description": "Display on the PX-150 kiosk keeps flickering and sometimes the screen goes blank. Technician suspects display failure.",
+    "serviceDate": "2026-09-15",
+    "warrantyStatus": "UNKNOWN"
+  },
+  {
+    "_scenario": "Intake model vs description model mismatch -> NEEDS_REVIEW (R6)",
+    "customer": "Harbor Clinics",
+    "equipmentModel": "PX-150",
+    "serialNumber": "SN88120",
+    "description": "Unit RX-300 shows error code E42 after the last update and reboots repeatedly. Technician diagnosed a firmware fault.",
+    "serviceDate": "2026-09-19",
+    "warrantyStatus": "UNDER_WARRANTY"
+  },
+  {
+    "_scenario": "Vague description -> low confidence everywhere -> NEEDS_REVIEW (R2)",
+    "customer": "Green Valley Farms",
+    "equipmentModel": "RX-300",
+    "serialNumber": "SN90001",
+    "description": "The machine is acting weird sometimes and the customer is unhappy with it.",
+    "serviceDate": "2026-09-22",
+    "warrantyStatus": "EXPIRED"
+  }
+]

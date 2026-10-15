@@ -1,0 +1,1000 @@
+[
+  {
+    "scenario": "PDF example - low confidence root cause -> NEEDS_REVIEW (R2)",
+    "claimId": "CLM-10001",
+    "input": {
+      "customer": "ABC Manufacturing",
+      "equipmentModel": "AX-500",
+      "serialNumber": "SN10231",
+      "description": "Router AX500 has intermittent connectivity. Customer replaced the power module twice. Device is still under warranty. Technician suspects a hardware failure.",
+      "serviceDate": "2026-09-20",
+      "warrantyStatus": "UNDER_WARRANTY"
+    },
+    "aiProvider": "rule_based",
+    "overallConfidence": 55,
+    "aiAnalysis": {
+      "symptom": {
+        "value": "Intermittent connectivity",
+        "evidence": "matched: Intermittent connectivity",
+        "confidence": 90
+      },
+      "category": {
+        "value": "Hardware Failure",
+        "evidence": "technician statement says hardware failure",
+        "confidence": 91
+      },
+      "severity": {
+        "value": "HIGH",
+        "evidence": "base MEDIUM from symptom; recurring issue",
+        "confidence": 86
+      },
+      "resolution": {
+        "value": "Run full diagnostics; Power Module already replaced (twice) without fix - inspect upstream components (mainboard/cabling) before replacing Power Module again",
+        "evidence": "repeat replacement did not resolve symptom",
+        "confidence": 55
+      },
+      "affectedPart": {
+        "value": "Power Module",
+        "evidence": "part named in text",
+        "confidence": 72
+      },
+      "serialNumber": {
+        "value": "SN10231",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 97
+      },
+      "equipmentModel": {
+        "value": "AX-500",
+        "evidence": "'AX500' in description matches intake model",
+        "confidence": 98
+      },
+      "suspectedCause": {
+        "value": "Power Module failure",
+        "evidence": "Technician suspects: 'hardware failure'; NOTE Power Module already replaced (twice) and issue persists",
+        "confidence": 60
+      },
+      "warrantyRelevance": {
+        "value": "UNDER_WARRANTY",
+        "evidence": "description states device is under warranty",
+        "confidence": 90
+      }
+    },
+    "validation": {
+      "threshold": 80,
+      "outcome": "NEEDS_REVIEW",
+      "failedRules": [
+        "R2"
+      ],
+      "flaggedFields": [
+        "suspectedCause",
+        "resolution"
+      ],
+      "fieldsRequiringReview": [
+        "suspectedCause",
+        "affectedPart",
+        "resolution"
+      ],
+      "registryWarrantyStatus": "UNDER_WARRANTY",
+      "rules": [
+        {
+          "id": "R1",
+          "name": "Serial number present",
+          "fields": [],
+          "passed": true,
+          "message": "Serial number present"
+        },
+        {
+          "id": "R2",
+          "name": "AI confidence >= 80%",
+          "fields": [
+            "suspectedCause",
+            "resolution"
+          ],
+          "passed": false,
+          "message": "Low confidence: suspectedCause 60%, resolution 55%"
+        },
+        {
+          "id": "R3",
+          "name": "Warranty verified against registry",
+          "fields": [],
+          "passed": true,
+          "message": "Registry: UNDER_WARRANTY on 2026-09-20 (ends 2027-01-14)"
+        },
+        {
+          "id": "R4",
+          "name": "Severity below CRITICAL",
+          "fields": [],
+          "passed": true,
+          "message": "Severity HIGH"
+        },
+        {
+          "id": "R5",
+          "name": "Required fields extracted",
+          "fields": [],
+          "passed": true,
+          "message": "All required fields present"
+        },
+        {
+          "id": "R6",
+          "name": "Model/serial consistent",
+          "fields": [],
+          "passed": true,
+          "message": "Intake, description and registry agree"
+        }
+      ]
+    },
+    "routedStatus": "NEEDS_REVIEW"
+  },
+  {
+    "scenario": "Clean, confirmed diagnosis -> READY_FOR_APPROVAL",
+    "claimId": "CLM-10002",
+    "input": {
+      "customer": "Delta Foods",
+      "equipmentModel": "CH-900",
+      "serialNumber": "SN77310",
+      "description": "Chiller CH-900 serial SN77310 is not cooling since Monday. Technician confirmed compressor failure after inspection. Unit is under warranty.",
+      "serviceDate": "2026-09-18",
+      "warrantyStatus": "UNDER_WARRANTY"
+    },
+    "aiProvider": "rule_based",
+    "overallConfidence": 85,
+    "aiAnalysis": {
+      "symptom": {
+        "value": "Not cooling",
+        "evidence": "matched: Not cooling",
+        "confidence": 90
+      },
+      "category": {
+        "value": "Hardware Failure",
+        "evidence": "cause attributed to hardware part 'Compressor'",
+        "confidence": 85
+      },
+      "severity": {
+        "value": "HIGH",
+        "evidence": "base HIGH from symptom; diagnosis confirmed by technician",
+        "confidence": 86
+      },
+      "resolution": {
+        "value": "Inspect and replace Compressor",
+        "evidence": "standard fix for Compressor failure",
+        "confidence": 92
+      },
+      "affectedPart": {
+        "value": "Compressor",
+        "evidence": "part named in text",
+        "confidence": 90
+      },
+      "serialNumber": {
+        "value": "SN77310",
+        "evidence": "serial in description matches intake",
+        "confidence": 99
+      },
+      "equipmentModel": {
+        "value": "CH-900",
+        "evidence": "'CH-900' in description matches intake model",
+        "confidence": 98
+      },
+      "suspectedCause": {
+        "value": "Compressor failure",
+        "evidence": "Technician confirmed: 'compressor failure after inspection'",
+        "confidence": 92
+      },
+      "warrantyRelevance": {
+        "value": "UNDER_WARRANTY",
+        "evidence": "description states device is under warranty",
+        "confidence": 90
+      }
+    },
+    "validation": {
+      "threshold": 80,
+      "outcome": "READY_FOR_APPROVAL",
+      "failedRules": [],
+      "flaggedFields": [],
+      "fieldsRequiringReview": [],
+      "registryWarrantyStatus": "UNDER_WARRANTY",
+      "rules": [
+        {
+          "id": "R1",
+          "name": "Serial number present",
+          "fields": [],
+          "passed": true,
+          "message": "Serial number present"
+        },
+        {
+          "id": "R2",
+          "name": "AI confidence >= 80%",
+          "fields": [],
+          "passed": true,
+          "message": "All decision-critical fields meet threshold"
+        },
+        {
+          "id": "R3",
+          "name": "Warranty verified against registry",
+          "fields": [],
+          "passed": true,
+          "message": "Registry: UNDER_WARRANTY on 2026-09-18 (ends 2027-08-31)"
+        },
+        {
+          "id": "R4",
+          "name": "Severity below CRITICAL",
+          "fields": [],
+          "passed": true,
+          "message": "Severity HIGH"
+        },
+        {
+          "id": "R5",
+          "name": "Required fields extracted",
+          "fields": [],
+          "passed": true,
+          "message": "All required fields present"
+        },
+        {
+          "id": "R6",
+          "name": "Model/serial consistent",
+          "fields": [],
+          "passed": true,
+          "message": "Intake, description and registry agree"
+        }
+      ]
+    },
+    "routedStatus": "READY_FOR_APPROVAL"
+  },
+  {
+    "scenario": "Clean, confirmed diagnosis -> READY_FOR_APPROVAL",
+    "claimId": "CLM-10003",
+    "input": {
+      "customer": "Nimbus Networks",
+      "equipmentModel": "AX-700",
+      "serialNumber": "SN20417",
+      "description": "Access point AX-700 has no connectivity on any client. Field engineer confirmed antenna failure; connector is intact. Device is covered by warranty.",
+      "serviceDate": "2026-09-10",
+      "warrantyStatus": "UNDER_WARRANTY"
+    },
+    "aiProvider": "rule_based",
+    "overallConfidence": 85,
+    "aiAnalysis": {
+      "symptom": {
+        "value": "No connectivity",
+        "evidence": "matched: No connectivity",
+        "confidence": 90
+      },
+      "category": {
+        "value": "Hardware Failure",
+        "evidence": "cause attributed to hardware part 'Antenna'",
+        "confidence": 85
+      },
+      "severity": {
+        "value": "HIGH",
+        "evidence": "base HIGH from symptom; diagnosis confirmed by technician",
+        "confidence": 86
+      },
+      "resolution": {
+        "value": "Inspect and replace Antenna",
+        "evidence": "standard fix for Antenna failure",
+        "confidence": 92
+      },
+      "affectedPart": {
+        "value": "Antenna",
+        "evidence": "part named in text",
+        "confidence": 90
+      },
+      "serialNumber": {
+        "value": "SN20417",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 97
+      },
+      "equipmentModel": {
+        "value": "AX-700",
+        "evidence": "'AX-700' in description matches intake model",
+        "confidence": 98
+      },
+      "suspectedCause": {
+        "value": "Antenna failure",
+        "evidence": "Field engineer confirmed: 'antenna failure'",
+        "confidence": 92
+      },
+      "warrantyRelevance": {
+        "value": "UNDER_WARRANTY",
+        "evidence": "description states device is under warranty",
+        "confidence": 90
+      }
+    },
+    "validation": {
+      "threshold": 80,
+      "outcome": "READY_FOR_APPROVAL",
+      "failedRules": [],
+      "flaggedFields": [],
+      "fieldsRequiringReview": [],
+      "registryWarrantyStatus": "UNDER_WARRANTY",
+      "rules": [
+        {
+          "id": "R1",
+          "name": "Serial number present",
+          "fields": [],
+          "passed": true,
+          "message": "Serial number present"
+        },
+        {
+          "id": "R2",
+          "name": "AI confidence >= 80%",
+          "fields": [],
+          "passed": true,
+          "message": "All decision-critical fields meet threshold"
+        },
+        {
+          "id": "R3",
+          "name": "Warranty verified against registry",
+          "fields": [],
+          "passed": true,
+          "message": "Registry: UNDER_WARRANTY on 2026-09-10 (ends 2028-05-31)"
+        },
+        {
+          "id": "R4",
+          "name": "Severity below CRITICAL",
+          "fields": [],
+          "passed": true,
+          "message": "Severity HIGH"
+        },
+        {
+          "id": "R5",
+          "name": "Required fields extracted",
+          "fields": [],
+          "passed": true,
+          "message": "All required fields present"
+        },
+        {
+          "id": "R6",
+          "name": "Model/serial consistent",
+          "fields": [],
+          "passed": true,
+          "message": "Intake, description and registry agree"
+        }
+      ]
+    },
+    "routedStatus": "READY_FOR_APPROVAL"
+  },
+  {
+    "scenario": "Safety hazard -> CRITICAL severity -> NEEDS_REVIEW (R4)",
+    "claimId": "CLM-10004",
+    "input": {
+      "customer": "Metro Print Co",
+      "equipmentModel": "LX-220",
+      "serialNumber": "SN55501",
+      "description": "Printer LX-220 serial SN55501 started smoking and there is a burning smell from the rear power supply area.",
+      "serviceDate": "2026-09-21",
+      "warrantyStatus": "UNDER_WARRANTY"
+    },
+    "aiProvider": "rule_based",
+    "overallConfidence": 62,
+    "aiAnalysis": {
+      "symptom": {
+        "value": "Safety hazard (smoke/sparks/burning)",
+        "evidence": "matched: Safety hazard (smoke/sparks/burning)",
+        "confidence": 90
+      },
+      "category": {
+        "value": "Safety Hazard",
+        "evidence": "safety keywords present",
+        "confidence": 95
+      },
+      "severity": {
+        "value": "CRITICAL",
+        "evidence": "safety hazard keywords",
+        "confidence": 95
+      },
+      "resolution": {
+        "value": "Isolate unit from power immediately; safety inspection by certified technician before any repair",
+        "evidence": "safety protocol",
+        "confidence": 92
+      },
+      "affectedPart": {
+        "value": "Power Module",
+        "evidence": "part named in text",
+        "confidence": 74
+      },
+      "serialNumber": {
+        "value": "SN55501",
+        "evidence": "serial in description matches intake",
+        "confidence": 99
+      },
+      "equipmentModel": {
+        "value": "LX-220",
+        "evidence": "'LX-220' in description matches intake model",
+        "confidence": 98
+      },
+      "suspectedCause": {
+        "value": "Power Module failure",
+        "evidence": "inferred from symptom 'Safety hazard (smoke/sparks/burning)'",
+        "confidence": 62
+      },
+      "warrantyRelevance": {
+        "value": "UNDER_WARRANTY",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 70
+      }
+    },
+    "validation": {
+      "threshold": 80,
+      "outcome": "NEEDS_REVIEW",
+      "failedRules": [
+        "R2",
+        "R4"
+      ],
+      "flaggedFields": [
+        "suspectedCause",
+        "severity"
+      ],
+      "fieldsRequiringReview": [
+        "suspectedCause",
+        "affectedPart",
+        "severity",
+        "warrantyRelevance"
+      ],
+      "registryWarrantyStatus": "UNDER_WARRANTY",
+      "rules": [
+        {
+          "id": "R1",
+          "name": "Serial number present",
+          "fields": [],
+          "passed": true,
+          "message": "Serial number present"
+        },
+        {
+          "id": "R2",
+          "name": "AI confidence >= 80%",
+          "fields": [
+            "suspectedCause"
+          ],
+          "passed": false,
+          "message": "Low confidence: suspectedCause 62%"
+        },
+        {
+          "id": "R3",
+          "name": "Warranty verified against registry",
+          "fields": [],
+          "passed": true,
+          "message": "Registry: UNDER_WARRANTY on 2026-09-21 (ends 2027-02-09)"
+        },
+        {
+          "id": "R4",
+          "name": "Severity below CRITICAL",
+          "fields": [
+            "severity"
+          ],
+          "passed": false,
+          "message": "CRITICAL severity requires human sign-off"
+        },
+        {
+          "id": "R5",
+          "name": "Required fields extracted",
+          "fields": [],
+          "passed": true,
+          "message": "All required fields present"
+        },
+        {
+          "id": "R6",
+          "name": "Model/serial consistent",
+          "fields": [],
+          "passed": true,
+          "message": "Intake, description and registry agree"
+        }
+      ]
+    },
+    "routedStatus": "NEEDS_REVIEW"
+  },
+  {
+    "scenario": "Claims under warranty but registry says expired -> NEEDS_REVIEW (R3)",
+    "claimId": "CLM-10005",
+    "input": {
+      "customer": "Orbit Logistics",
+      "equipmentModel": "AX-500",
+      "serialNumber": "SN10232",
+      "description": "Router AX-500 does not power on. Technician confirmed power module failure. Customer says unit is under warranty.",
+      "serviceDate": "2026-09-12",
+      "warrantyStatus": "UNDER_WARRANTY"
+    },
+    "aiProvider": "rule_based",
+    "overallConfidence": 85,
+    "aiAnalysis": {
+      "symptom": {
+        "value": "Device does not power on",
+        "evidence": "matched: Device does not power on",
+        "confidence": 90
+      },
+      "category": {
+        "value": "Hardware Failure",
+        "evidence": "cause attributed to hardware part 'Power Module'",
+        "confidence": 85
+      },
+      "severity": {
+        "value": "HIGH",
+        "evidence": "base HIGH from symptom; diagnosis confirmed by technician",
+        "confidence": 86
+      },
+      "resolution": {
+        "value": "Inspect and replace Power Module",
+        "evidence": "standard fix for Power Module failure",
+        "confidence": 92
+      },
+      "affectedPart": {
+        "value": "Power Module",
+        "evidence": "part named in text",
+        "confidence": 90
+      },
+      "serialNumber": {
+        "value": "SN10232",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 97
+      },
+      "equipmentModel": {
+        "value": "AX-500",
+        "evidence": "'AX-500' in description matches intake model",
+        "confidence": 98
+      },
+      "suspectedCause": {
+        "value": "Power Module failure",
+        "evidence": "Technician confirmed: 'power module failure'",
+        "confidence": 92
+      },
+      "warrantyRelevance": {
+        "value": "UNDER_WARRANTY",
+        "evidence": "description states device is under warranty",
+        "confidence": 90
+      }
+    },
+    "validation": {
+      "threshold": 80,
+      "outcome": "NEEDS_REVIEW",
+      "failedRules": [
+        "R3"
+      ],
+      "flaggedFields": [
+        "warrantyRelevance"
+      ],
+      "fieldsRequiringReview": [
+        "warrantyRelevance"
+      ],
+      "registryWarrantyStatus": "EXPIRED",
+      "rules": [
+        {
+          "id": "R1",
+          "name": "Serial number present",
+          "fields": [],
+          "passed": true,
+          "message": "Serial number present"
+        },
+        {
+          "id": "R2",
+          "name": "AI confidence >= 80%",
+          "fields": [],
+          "passed": true,
+          "message": "All decision-critical fields meet threshold"
+        },
+        {
+          "id": "R3",
+          "name": "Warranty verified against registry",
+          "fields": [
+            "warrantyRelevance"
+          ],
+          "passed": false,
+          "message": "Registry: EXPIRED on 2026-09-12 (ends 2024-02-28) but claim/AI says UNDER_WARRANTY"
+        },
+        {
+          "id": "R4",
+          "name": "Severity below CRITICAL",
+          "fields": [],
+          "passed": true,
+          "message": "Severity HIGH"
+        },
+        {
+          "id": "R5",
+          "name": "Required fields extracted",
+          "fields": [],
+          "passed": true,
+          "message": "All required fields present"
+        },
+        {
+          "id": "R6",
+          "name": "Model/serial consistent",
+          "fields": [],
+          "passed": true,
+          "message": "Intake, description and registry agree"
+        }
+      ]
+    },
+    "routedStatus": "NEEDS_REVIEW"
+  },
+  {
+    "scenario": "No serial anywhere -> NEEDS_REVIEW (R1)",
+    "claimId": "CLM-10006",
+    "input": {
+      "customer": "Sunrise Hotels",
+      "equipmentModel": "PX-150",
+      "serialNumber": "",
+      "description": "Display on the PX-150 kiosk keeps flickering and sometimes the screen goes blank. Technician suspects display failure.",
+      "serviceDate": "2026-09-15",
+      "warrantyStatus": "UNKNOWN"
+    },
+    "aiProvider": "rule_based",
+    "overallConfidence": 78,
+    "aiAnalysis": {
+      "symptom": {
+        "value": "Display malfunction",
+        "evidence": "matched: Display malfunction",
+        "confidence": 90
+      },
+      "category": {
+        "value": "Hardware Failure",
+        "evidence": "cause attributed to hardware part 'Display'",
+        "confidence": 85
+      },
+      "severity": {
+        "value": "HIGH",
+        "evidence": "base MEDIUM from symptom; recurring issue",
+        "confidence": 86
+      },
+      "resolution": {
+        "value": "Inspect and replace Display",
+        "evidence": "standard fix for Display failure",
+        "confidence": 83
+      },
+      "affectedPart": {
+        "value": "Display",
+        "evidence": "part named in text",
+        "confidence": 90
+      },
+      "serialNumber": {
+        "value": null,
+        "evidence": "no serial number in claim",
+        "confidence": 0
+      },
+      "equipmentModel": {
+        "value": "PX-150",
+        "evidence": "'PX-150' in description matches intake model",
+        "confidence": 98
+      },
+      "suspectedCause": {
+        "value": "Display failure",
+        "evidence": "Technician suspects: 'display failure'",
+        "confidence": 78
+      },
+      "warrantyRelevance": {
+        "value": "UNKNOWN",
+        "evidence": "warranty not mentioned",
+        "confidence": 40
+      }
+    },
+    "validation": {
+      "threshold": 80,
+      "outcome": "NEEDS_REVIEW",
+      "failedRules": [
+        "R1",
+        "R2",
+        "R3"
+      ],
+      "flaggedFields": [
+        "serialNumber",
+        "suspectedCause",
+        "warrantyRelevance"
+      ],
+      "fieldsRequiringReview": [
+        "serialNumber",
+        "suspectedCause",
+        "warrantyRelevance"
+      ],
+      "registryWarrantyStatus": null,
+      "rules": [
+        {
+          "id": "R1",
+          "name": "Serial number present",
+          "fields": [
+            "serialNumber"
+          ],
+          "passed": false,
+          "message": "Serial number missing from intake and description"
+        },
+        {
+          "id": "R2",
+          "name": "AI confidence >= 80%",
+          "fields": [
+            "suspectedCause"
+          ],
+          "passed": false,
+          "message": "Low confidence: suspectedCause 78%"
+        },
+        {
+          "id": "R3",
+          "name": "Warranty verified against registry",
+          "fields": [
+            "warrantyRelevance"
+          ],
+          "passed": false,
+          "message": "Serial not found in warranty registry - cannot verify coverage"
+        },
+        {
+          "id": "R4",
+          "name": "Severity below CRITICAL",
+          "fields": [],
+          "passed": true,
+          "message": "Severity HIGH"
+        },
+        {
+          "id": "R5",
+          "name": "Required fields extracted",
+          "fields": [],
+          "passed": true,
+          "message": "All required fields present"
+        },
+        {
+          "id": "R6",
+          "name": "Model/serial consistent",
+          "fields": [],
+          "passed": true,
+          "message": "Intake, description and registry agree"
+        }
+      ]
+    },
+    "routedStatus": "NEEDS_REVIEW"
+  },
+  {
+    "scenario": "Intake model vs description model mismatch -> NEEDS_REVIEW (R6)",
+    "claimId": "CLM-10007",
+    "input": {
+      "customer": "Harbor Clinics",
+      "equipmentModel": "PX-150",
+      "serialNumber": "SN88120",
+      "description": "Unit RX-300 shows error code E42 after the last update and reboots repeatedly. Technician diagnosed a firmware fault.",
+      "serviceDate": "2026-09-19",
+      "warrantyStatus": "UNDER_WARRANTY"
+    },
+    "aiProvider": "rule_based",
+    "overallConfidence": 55,
+    "aiAnalysis": {
+      "symptom": {
+        "value": "Unexpected reboots; Error code reported",
+        "evidence": "matched: Unexpected reboots, Error code reported",
+        "confidence": 82
+      },
+      "category": {
+        "value": "Software/Firmware",
+        "evidence": "from symptom",
+        "confidence": 86
+      },
+      "severity": {
+        "value": "HIGH",
+        "evidence": "base MEDIUM from symptom; recurring issue; diagnosis confirmed by technician",
+        "confidence": 82
+      },
+      "resolution": {
+        "value": "Update firmware to latest release and factory-reset configuration",
+        "evidence": "firmware cause",
+        "confidence": 92
+      },
+      "affectedPart": {
+        "value": "Firmware",
+        "evidence": "part named in text",
+        "confidence": 90
+      },
+      "serialNumber": {
+        "value": "SN88120",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 97
+      },
+      "equipmentModel": {
+        "value": "RX-300",
+        "evidence": "description mentions 'RX-300' but intake says 'PX-150'",
+        "confidence": 55
+      },
+      "suspectedCause": {
+        "value": "Firmware failure",
+        "evidence": "Technician diagnosed: 'firmware fault'",
+        "confidence": 92
+      },
+      "warrantyRelevance": {
+        "value": "UNDER_WARRANTY",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 70
+      }
+    },
+    "validation": {
+      "threshold": 80,
+      "outcome": "NEEDS_REVIEW",
+      "failedRules": [
+        "R2",
+        "R6"
+      ],
+      "flaggedFields": [
+        "equipmentModel"
+      ],
+      "fieldsRequiringReview": [
+        "equipmentModel",
+        "warrantyRelevance"
+      ],
+      "registryWarrantyStatus": "UNDER_WARRANTY",
+      "rules": [
+        {
+          "id": "R1",
+          "name": "Serial number present",
+          "fields": [],
+          "passed": true,
+          "message": "Serial number present"
+        },
+        {
+          "id": "R2",
+          "name": "AI confidence >= 80%",
+          "fields": [
+            "equipmentModel"
+          ],
+          "passed": false,
+          "message": "Low confidence: equipmentModel 55%"
+        },
+        {
+          "id": "R3",
+          "name": "Warranty verified against registry",
+          "fields": [],
+          "passed": true,
+          "message": "Registry: UNDER_WARRANTY on 2026-09-19 (ends 2027-10-31)"
+        },
+        {
+          "id": "R4",
+          "name": "Severity below CRITICAL",
+          "fields": [],
+          "passed": true,
+          "message": "Severity HIGH"
+        },
+        {
+          "id": "R5",
+          "name": "Required fields extracted",
+          "fields": [],
+          "passed": true,
+          "message": "All required fields present"
+        },
+        {
+          "id": "R6",
+          "name": "Model/serial consistent",
+          "fields": [
+            "equipmentModel"
+          ],
+          "passed": false,
+          "message": "model: intake PX-150 vs description RX-300"
+        }
+      ]
+    },
+    "routedStatus": "NEEDS_REVIEW"
+  },
+  {
+    "scenario": "Vague description -> low confidence everywhere -> NEEDS_REVIEW (R2)",
+    "claimId": "CLM-10008",
+    "input": {
+      "customer": "Green Valley Farms",
+      "equipmentModel": "RX-300",
+      "serialNumber": "SN90001",
+      "description": "The machine is acting weird sometimes and the customer is unhappy with it.",
+      "serviceDate": "2026-09-22",
+      "warrantyStatus": "EXPIRED"
+    },
+    "aiProvider": "rule_based",
+    "overallConfidence": 40,
+    "aiAnalysis": {
+      "symptom": {
+        "value": "The machine is acting weird sometimes and the customer is unhappy with it.",
+        "evidence": "no known symptom pattern; first sentence used",
+        "confidence": 45
+      },
+      "category": {
+        "value": "Other",
+        "evidence": "no category signal",
+        "confidence": 40
+      },
+      "severity": {
+        "value": "MEDIUM",
+        "evidence": "no severity signal; default",
+        "confidence": 45
+      },
+      "resolution": {
+        "value": "Remote diagnostics required before dispatch",
+        "evidence": "insufficient information",
+        "confidence": 40
+      },
+      "affectedPart": {
+        "value": null,
+        "evidence": "no part identified",
+        "confidence": 0
+      },
+      "serialNumber": {
+        "value": "SN90001",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 97
+      },
+      "equipmentModel": {
+        "value": "RX-300",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 92
+      },
+      "suspectedCause": {
+        "value": null,
+        "evidence": "no cause stated or inferable",
+        "confidence": 0
+      },
+      "warrantyRelevance": {
+        "value": "EXPIRED",
+        "evidence": "not in description; taken from intake form",
+        "confidence": 70
+      }
+    },
+    "validation": {
+      "threshold": 80,
+      "outcome": "NEEDS_REVIEW",
+      "failedRules": [
+        "R2",
+        "R5"
+      ],
+      "flaggedFields": [
+        "category",
+        "suspectedCause",
+        "severity",
+        "resolution"
+      ],
+      "fieldsRequiringReview": [
+        "category",
+        "symptom",
+        "suspectedCause",
+        "severity",
+        "resolution",
+        "warrantyRelevance"
+      ],
+      "registryWarrantyStatus": "EXPIRED",
+      "rules": [
+        {
+          "id": "R1",
+          "name": "Serial number present",
+          "fields": [],
+          "passed": true,
+          "message": "Serial number present"
+        },
+        {
+          "id": "R2",
+          "name": "AI confidence >= 80%",
+          "fields": [
+            "category",
+            "severity",
+            "resolution"
+          ],
+          "passed": false,
+          "message": "Low confidence: category 40%, severity 45%, resolution 40%"
+        },
+        {
+          "id": "R3",
+          "name": "Warranty verified against registry",
+          "fields": [],
+          "passed": true,
+          "message": "Registry: EXPIRED on 2026-09-22 (ends 2025-12-31)"
+        },
+        {
+          "id": "R4",
+          "name": "Severity below CRITICAL",
+          "fields": [],
+          "passed": true,
+          "message": "Severity MEDIUM"
+        },
+        {
+          "id": "R5",
+          "name": "Required fields extracted",
+          "fields": [
+            "suspectedCause"
+          ],
+          "passed": false,
+          "message": "Missing: suspectedCause"
+        },
+        {
+          "id": "R6",
+          "name": "Model/serial consistent",
+          "fields": [],
+          "passed": true,
+          "message": "Intake, description and registry agree"
+        }
+      ]
+    },
+    "routedStatus": "NEEDS_REVIEW"
+  }
+]
